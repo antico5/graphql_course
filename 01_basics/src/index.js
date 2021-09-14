@@ -2,12 +2,12 @@ import { GraphQLServer } from "graphql-yoga";
 
 const userList = [
   {
-    id: 1,
+    id: "1",
     name: "Armando",
     age: 29,
   },
   {
-    id: 2,
+    id: "2",
     name: "John",
     age: 31,
   },
@@ -15,16 +15,33 @@ const userList = [
 
 const postList = [
   {
-    id: 1,
+    id: "1",
     title: "Title 1",
     body: "Whatever",
     published: true,
+    authorId: "1",
   },
   {
-    id: 2,
+    id: "2",
     title: "Really amazing post",
     body: "Wow",
     published: true,
+    authorId: "2",
+  },
+];
+
+const commentList = [
+  {
+    id: "1",
+    text: "Nice post",
+    postId: "1",
+    authorId: "2",
+  },
+  {
+    id: "2",
+    text: "Thanks!",
+    postId: "2",
+    authorId: "1",
   },
 ];
 
@@ -35,12 +52,15 @@ const typeDefs = `
     post: Post!
     users(query: String): [User!]!
     posts(query: String): [Post!]!
+    comments: [Comment!]!
   }
 
   type User {
     id: ID!
     name: String!
     age: Int!
+    posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -48,43 +68,91 @@ const typeDefs = `
     title: String!
     body: String!
     published: Boolean!
+    author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    post: Post!
   }
 `;
 
 // Resolvers
-const resolvers = {
-  Query: {
-    me() {
-      return {
-        id: 123,
-        name: "Armando",
-        age: 29,
-      };
-    },
-
-    post() {
-      return {
-        id: "P1234",
-        title: "Wow",
-        body: "such post",
-        published: true,
-      };
-    },
-
-    users(parent, { query }, ctx, info) {
-      return query
-        ? userList.filter((user) => user.name.includes(query))
-        : userList;
-    },
-
-    posts(parent, { query }, ctx, info) {
-      return query
-        ? postList.filter(
-            (post) => post.title.includes(query) || post.body.includes(query)
-          )
-        : postList;
-    },
+const Query = {
+  me() {
+    return {
+      id: 123,
+      name: "Armando",
+      age: 29,
+    };
   },
+
+  post() {
+    return {
+      id: "P1234",
+      title: "Wow",
+      body: "such post",
+      published: true,
+    };
+  },
+
+  users(parent, { query }, ctx, info) {
+    return query
+      ? userList.filter((user) => user.name.includes(query))
+      : userList;
+  },
+
+  posts(parent, { query }, ctx, info) {
+    return query
+      ? postList.filter(
+          (post) => post.title.includes(query) || post.body.includes(query)
+        )
+      : postList;
+  },
+
+  comments() {
+    return commentList;
+  },
+};
+
+const Post = {
+  author(parent, args, ctx, info) {
+    return userList.find((user) => user.id === parent.authorId);
+  },
+
+  comments(parent, args, ctx, info) {
+    return commentList.filter((comment) => comment.postId == parent.id);
+  },
+};
+
+const User = {
+  posts(parent, args, ctx, info) {
+    return postList.filter((post) => post.authorId == parent.id);
+  },
+
+  comments(parent, args, ctx, info) {
+    return commentList.filter((comment) => comment.authorId == parent.id);
+  },
+};
+
+const Comment = {
+  author(parent, args, ctx, info) {
+    return userList.find((user) => user.id === parent.authorId);
+  },
+
+  post(parent, args, ctx, info) {
+    return postList.find((post) => post.id === parent.postId);
+  },
+};
+
+const resolvers = {
+  Query,
+  Post,
+  User,
+  Comment,
 };
 
 const server = new GraphQLServer({
