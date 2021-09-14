@@ -1,18 +1,45 @@
 import { GraphQLServer } from "graphql-yoga";
 
+const userList = [
+  {
+    id: 1,
+    name: "Armando",
+    age: 29,
+  },
+  {
+    id: 2,
+    name: "John",
+    age: 31,
+  },
+];
+
+const postList = [
+  {
+    id: 1,
+    title: "Title 1",
+    body: "Whatever",
+    published: true,
+  },
+  {
+    id: 2,
+    title: "Really amazing post",
+    body: "Wow",
+    published: true,
+  },
+];
+
 // Type definitions (schema)
 const typeDefs = `
   type Query {
     me: User!
     post: Post!
-    greeting(name: String): String!
-    add(a: Float!, b: Float!): Float!
+    users(query: String): [User!]!
+    posts(query: String): [Post!]!
   }
 
   type User {
     id: ID!
     name: String!
-    email: String!
     age: Int!
   }
 
@@ -31,7 +58,6 @@ const resolvers = {
       return {
         id: 123,
         name: "Armando",
-        email: "armando.andini@gmail.com",
         age: 29,
       };
     },
@@ -45,16 +71,18 @@ const resolvers = {
       };
     },
 
-    greeting(parent, args, ctx, info) {
-      // console.log("parent", JSON.stringify(parent, null, 2));
-      // console.log("args", JSON.stringify(args, null, 2));
-      // console.log("ctx", JSON.stringify(ctx, null, 2));
-      // console.log("info", JSON.stringify(info, null, 2));
-      return `Hello`;
+    users(parent, { query }, ctx, info) {
+      return query
+        ? userList.filter((user) => user.name.includes(query))
+        : userList;
     },
 
-    add(_, { a, b }) {
-      return a + b;
+    posts(parent, { query }, ctx, info) {
+      return query
+        ? postList.filter(
+            (post) => post.title.includes(query) || post.body.includes(query)
+          )
+        : postList;
     },
   },
 };
