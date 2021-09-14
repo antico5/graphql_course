@@ -5,6 +5,8 @@ const typeDefs = `
   type Query {
     me: User!
     post: Post!
+    greeting(name: String): String!
+    add(a: Float!, b: Float!): Float!
   }
 
   type User {
@@ -41,6 +43,18 @@ const resolvers = {
         body: "such post",
         published: true,
       };
+    },
+
+    greeting(parent, args, ctx, info) {
+      // console.log("parent", JSON.stringify(parent, null, 2));
+      // console.log("args", JSON.stringify(args, null, 2));
+      // console.log("ctx", JSON.stringify(ctx, null, 2));
+      // console.log("info", JSON.stringify(info, null, 2));
+      return `Hello`;
+    },
+
+    add(_, { a, b }) {
+      return a + b;
     },
   },
 };
