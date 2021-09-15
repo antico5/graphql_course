@@ -57,8 +57,20 @@ const typeDefs = `
   }
 
   type Mutation {
-    createUser(name: String!, age: Int!): User!
-    createPost(title: String!, body: String!, authorId: ID!, published: Boolean!): Post!
+    createUser(data: CreateUserInput): User!
+    createPost(data: CreatePostInput): Post!
+  }
+
+  input CreateUserInput {
+    name: String!
+    age: Int!
+  }
+
+  input CreatePostInput {
+    title: String!
+    body: String!
+    authorId: ID!
+    published: Boolean!
   }
 
   type User {
@@ -125,27 +137,26 @@ const Query = {
 };
 
 const Mutation = {
-  createUser(parent, args, ctx, info) {
-    if (userList.find((u) => u.name == args.name)) {
+  createUser(parent, { data }, ctx, info) {
+    if (userList.find((u) => u.name == data.name)) {
       throw new Error("User name is already taken");
     }
     const user = {
       id: uuid(),
-      name: args.name,
-      age: args.age,
+      ...data,
     };
     userList.push(user);
     return user;
   },
 
-  createPost(parent, args, ctx, info) {
-    if (!userList.some((u) => u.id == args.authorId)) {
+  createPost(parent, { data }, ctx, info) {
+    if (!userList.some((u) => u.id == data.authorId)) {
       throw new Error("User id not found");
     }
 
     const post = {
       id: uuid(),
-      ...args,
+      ...data,
     };
 
     postList.push(post);
