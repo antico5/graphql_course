@@ -1,4 +1,5 @@
 import { GraphQLServer } from "graphql-yoga";
+import { v4 as uuid } from "uuid";
 
 const userList = [
   {
@@ -53,6 +54,11 @@ const typeDefs = `
     users(query: String): [User!]!
     posts(query: String): [Post!]!
     comments: [Comment!]!
+  }
+
+  type Mutation {
+    createUser(name: String!, age: Int!): User!
+    createPost(title: String!, body: String!, authorId: ID!, published: Boolean!): Post!
   }
 
   type User {
@@ -118,6 +124,35 @@ const Query = {
   },
 };
 
+const Mutation = {
+  createUser(parent, args, ctx, info) {
+    if (userList.find((u) => u.name == args.name)) {
+      throw new Error("User name is already taken");
+    }
+    const user = {
+      id: uuid(),
+      name: args.name,
+      age: args.age,
+    };
+    userList.push(user);
+    return user;
+  },
+
+  createPost(parent, args, ctx, info) {
+    if (!userList.some((u) => u.id == args.authorId)) {
+      throw new Error("User id not found");
+    }
+
+    const post = {
+      id: uuid(),
+      ...args,
+    };
+
+    postList.push(post);
+    return post;
+  },
+};
+
 const Post = {
   author(parent, args, ctx, info) {
     return userList.find((user) => user.id === parent.authorId);
@@ -153,6 +188,7 @@ const resolvers = {
   Post,
   User,
   Comment,
+  Mutation,
 };
 
 const server = new GraphQLServer({
@@ -163,3 +199,5 @@ const server = new GraphQLServer({
 server.start(() => {
   console.log("Server is running");
 });
+
+export default {};
