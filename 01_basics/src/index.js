@@ -59,6 +59,7 @@ const typeDefs = `
   type Mutation {
     createUser(data: CreateUserInput): User!
     createPost(data: CreatePostInput): Post!
+    deleteUser(id: ID!): User!
   }
 
   input CreateUserInput {
@@ -161,6 +162,20 @@ const Mutation = {
 
     postList.push(post);
     return post;
+  },
+
+  deleteUser(parent, { id }, ctx, info) {
+    const index = userList.findIndex((u) => u.id === id);
+
+    if (index == -1) {
+      throw new Error("User not found");
+    }
+
+    const user = userList[index];
+
+    userList.splice(index, 1);
+
+    return user;
   },
 };
 
