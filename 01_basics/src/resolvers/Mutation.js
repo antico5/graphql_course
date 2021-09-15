@@ -26,6 +26,27 @@ export default {
     return post;
   },
 
+  createComment(parent, { data }, { db, pubsub }, info) {
+    if (!db.users.some((u) => u.id == data.authorId)) {
+      throw new Error("User id not found");
+    }
+
+    if (!db.posts.some((p) => p.id == data.postId)) {
+      throw new Error("Post id not found");
+    }
+
+    const comment = {
+      id: uuid(),
+      ...data,
+    };
+
+    db.comments.push(comment);
+
+    pubsub.publish(`postComments_${data.postId}`, { comments: comment });
+
+    return comment;
+  },
+
   deleteUser(parent, { id }, { db }, info) {
     const index = db.users.findIndex((u) => u.id === id);
 
