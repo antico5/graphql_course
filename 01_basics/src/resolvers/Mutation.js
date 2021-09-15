@@ -39,4 +39,16 @@ export default {
 
     return user;
   },
+
+  updateUser(parent, { id, data }, { db }, info) {
+    const user = db.users.find((u) => u.id == id);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    Object.assign(user, data);
+
+    return user;
+  },
 };
