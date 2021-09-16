@@ -69,6 +69,12 @@ type Comment {
 }
 
 type PostEvent {
-  mutation: String!
+  mutation: MutationType!
   data: Post!
+}
+
+enum MutationType {
+  CREATED
+  UPDATED
+  DELETED
 }

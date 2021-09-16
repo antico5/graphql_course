@@ -26,7 +26,7 @@ export default {
 
     pubsub.publish(`posts`, {
       posts: {
-        mutation: "create",
+        mutation: "CREATED",
         data: post,
       },
     });
@@ -47,7 +47,7 @@ export default {
 
     pubsub.publish(`posts`, {
       posts: {
-        mutation: "delete",
+        mutation: "DELETED",
         data: post,
       },
     });
