@@ -10,6 +10,7 @@ type Mutation {
   createUser(data: CreateUserInput): User!
   updateUser(id: ID!, data: UpdateUserInput): User!
   createPost(data: CreatePostInput): Post!
+  deletePost(id: ID!): Post!
   deleteUser(id: ID!): User!
   createComment(data: CreateCommentInput): Comment!
 }
@@ -17,6 +18,7 @@ type Mutation {
 type Subscription {
   count: Int!
   comments(postId: ID!): Comment!
+  posts: PostEvent!
 }
 
 input CreateUserInput {
@@ -64,4 +66,9 @@ type Comment {
   text: String!
   author: User!
   post: Post!
+}
+
+type PostEvent {
+  mutation: String!
+  data: Post!
 }

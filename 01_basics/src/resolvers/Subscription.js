@@ -28,4 +28,12 @@ export default {
       return pubsub.asyncIterator(channel);
     },
   },
+
+  posts: {
+    subscribe(parent, args, { pubsub, db }, info) {
+      const channel = `posts`;
+
+      return pubsub.asyncIterator(channel);
+    },
+  },
 };

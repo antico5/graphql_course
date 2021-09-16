@@ -12,7 +12,7 @@ export default {
     return user;
   },
 
-  createPost(parent, { data }, { db }, info) {
+  createPost(parent, { data }, { db, pubsub }, info) {
     if (!db.users.some((u) => u.id == data.authorId)) {
       throw new Error("User id not found");
     }
@@ -23,6 +23,35 @@ export default {
     };
 
     db.posts.push(post);
+
+    pubsub.publish(`posts`, {
+      posts: {
+        mutation: "create",
+        data: post,
+      },
+    });
+
+    return post;
+  },
+
+  deletePost(parent, { id }, { db, pubsub }, info) {
+    const index = db.posts.findIndex((u) => u.id === id);
+
+    if (index == -1) {
+      throw new Error("post not found");
+    }
+
+    const post = db.posts[index];
+
+    db.posts.splice(index, 1);
+
+    pubsub.publish(`posts`, {
+      posts: {
+        mutation: "delete",
+        data: post,
+      },
+    });
+
     return post;
   },
 
